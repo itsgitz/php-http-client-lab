@@ -28,11 +28,11 @@ class ApiClient
             $response = $this->client->get('/v1/health');
             $data = json_decode($response->getbody()->getcontents(), true);
 
-            $health = new HealthResponse();
-            $health->message = $data['message'] ?? '';
-            $health->alias = $data['alias'] ?? '';
+            if ($response->getStatusCode() >= 400) {
+                throw new MinioApiException('Error', $response->getStatusCode(), $data);
+            }
 
-            return $health;
+            return HealthResponse::fromArray($data, HealthResponse::class);
         } catch (GuzzleException $e) {
             throw new MinioApiException('Reqeust failed:' . $e->getMessage(), 500);
         }
