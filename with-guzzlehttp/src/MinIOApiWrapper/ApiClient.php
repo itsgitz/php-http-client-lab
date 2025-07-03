@@ -7,7 +7,7 @@ use GuzzleHttp\Exception\GuzzleException;
 use WithGuzzleHttp\MinIOApiWrapper\Response\HealthResponse;
 use WithGuzzleHttp\MinIOApiWrapper\Response\MinioApiException;
 
-class apiclient
+class ApiClient
 {
     protected client $client;
 
@@ -20,7 +20,7 @@ class apiclient
             'http_errors' => false
             ]
         );
-    } 
+    }
 
     public function health(): HealthResponse
     {
@@ -28,14 +28,13 @@ class apiclient
             $response = $this->client->get('/v1/health');
             $data = json_decode($response->getbody()->getcontents(), true);
 
-            $health = new HealthResponse;
+            $health = new HealthResponse();
             $health->message = $data['message'] ?? '';
             $health->alias = $data['alias'] ?? '';
 
             return $health;
         } catch (GuzzleException $e) {
             throw new MinioApiException('Reqeust failed:' . $e->getMessage(), 500);
-        } 
+        }
     }
 }
-
