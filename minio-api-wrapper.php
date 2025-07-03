@@ -14,5 +14,7 @@ $password = $_ENV['MINIO_API_PASSWORD'];
 $client = new ApiClient($baseUrl, $username, $password);
 
 $health = $client->health();
+// $healthLaravel = $client->healthLaravel();
 
-echo $health->message;
+echo "Health: {$health->message}";
+// echo "With Laravel Data: {$healthLaravel->message}";

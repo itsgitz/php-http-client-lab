@@ -5,6 +5,7 @@ namespace WithGuzzleHttp\MinIOApiWrapper;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
 use WithGuzzleHttp\MinIOApiWrapper\Response\HealthResponse;
+use WithGuzzleHttp\MinIOApiWrapper\Response\HealthResponseLaravel;
 use WithGuzzleHttp\MinIOApiWrapper\Response\MinioApiException;
 
 class ApiClient
@@ -36,5 +37,16 @@ class ApiClient
         } catch (GuzzleException $e) {
             throw new MinioApiException('Reqeust failed:' . $e->getMessage(), 500);
         }
+    }
+
+    public function healthLaravel(): HealthResponseLaravel
+    {
+        $response = $this->client->get('/v1/health');
+        $data = json_decode($response->getBody()->getContents(), true);
+        if ($response->getStatusCode() >= 404) {
+            throw new MinioApiException('Health check failed', $response->getStatusCode(), $data);
+        }
+
+        return HealthResponseLaravel::from($data);
     }
 }
