@@ -16,4 +16,3 @@ $client = new ApiClient($baseUrl, $username, $password);
 $health = $client->health();
 
 echo $health->message;
-
