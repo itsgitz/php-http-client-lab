@@ -3,26 +3,39 @@
 namespace WithGuzzleHttp\MinIOApiWrapper;
 
 use GuzzleHttp\Client;
+use GuzzleHttp\Exception\GuzzleException;
+use WithGuzzleHttp\MinIOApiWrapper\Response\HealthResponse;
+use WithGuzzleHttp\MinIOApiWrapper\Response\MinioApiException;
 
-class ApiClient
+class apiclient
 {
-    protected Client $client;
+    protected client $client;
 
-    public function __construct(string $baseUrl, string $username, string $password)
+    public function __construct(string $baseurl, string $username, string $password)
     {
-        $this->client = new Client(
+        $this->client = new client(
             [
-            'base_uri' => $baseUrl,
+            'base_uri' => $baseurl,
             'auth' => [$username, $password],
+            'http_errors' => false
             ]
         );
     } 
 
-    public function health()
+    public function health(): HealthResponse
     {
-        $response = $this->client->get('/health');
+        try {
+            $response = $this->client->get('/v1/health');
+            $data = json_decode($response->getbody()->getcontents(), true);
 
-        return json_decode($response->getBody()->getContents(), true);
+            $health = new HealthResponse;
+            $health->message = $data['message'] ?? '';
+            $health->alias = $data['alias'] ?? '';
+
+            return $health;
+        } catch (GuzzleException $e) {
+            throw new MinioApiException('Reqeust failed:' . $e->getMessage(), 500);
+        } 
     }
 }
 
